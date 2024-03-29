@@ -1,5 +1,5 @@
 key : null
-netuid: 0
+netuid: 0 # subnet
 network: subspace # global or local network
 sleep: 0.1 # sleep time between each forward call
 load: False # if true, load the dataset

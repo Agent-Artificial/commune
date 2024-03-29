@@ -383,14 +383,14 @@ class c:
         return cls.dict2munch(x)
     
     @classmethod
-    def load_yaml(cls, path:str=None, root:bool = False) -> Dict:
+    async def load_yaml(cls, path:str=None, root:bool = False) -> Dict:
         '''f
         Loads a yaml file
         '''
         path = cls.resolve_path(path, root=root)
         
         from commune.utils.dict import load_yaml
-        config = load_yaml(path)
+        config = await load_yaml(path)
         return config
     
     get_yaml = load_yaml
