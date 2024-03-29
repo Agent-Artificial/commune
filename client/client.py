@@ -3,7 +3,7 @@ import asyncio
 import commune as c
 from commune.module import Module
 from data_models import CRUD
-from client.config import default_config
+from config import default_config
 
 
 class CommuneCRUD(CRUD):
