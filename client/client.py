@@ -6,6 +6,9 @@ from data_models import CRUD
 from config import default_config
 
 
+
+        
+
 class CommuneCRUD(CRUD):
     def __init__(self):
         self.commune = c.Config(

@@ -1,11 +1,54 @@
 from pydantic import BaseModel
-from typing import List, Dict, Optional, Union, Any
+from typing import List, Dict, Optional, Union, Any, Literal, Callable, IO, Mapping
 from pathlib import Path
 from rich.console import Console
+from rich.theme import Theme
+from rich.style import StyleType
+from rich.emoji import EmojiVariant
+from rich
 from dotenv import load_dotenv
+from datetime import datetime
 from abc import ABC, abstractmethod
 
 load_dotenv()
+
+FormatTimeCallable = Callable[[Union[int, float]], str]
+
+class ConsoleSchema(BaseModel):
+    color_system: Optional[Literal["auto", "standard", "256", "truecolor", "windows"]]
+    force_terminal: Optional[bool]
+    force_jupyter: Optional[bool]
+    force_interactive: Optional[bool]
+    soft_wrap: bool
+    theme: Optional[Theme]
+    stderr: bool
+    file: Optional[IO[bytearray]]
+    quiet: bool
+    width: Optional[int]
+    height: Optional[int]
+    style: Optional[StyleType]
+    no_color: Optional[bool]
+    tab_size: int
+    record: bool
+    markup: bool
+    emoji: bool
+    emoji_variant: Optional[EmojiVariant]
+    highlight: bool
+    log_time: bool
+    log_path: bool
+    log_time_format: Union[str, FormatTimeCallable]
+    highlighter: Optional[str]
+    legacy_windows: Optional[bool]
+    safe_box: bool
+    get_datetime: Optional[Callable[[], datetime]]
+    get_time: Optional[Callable[[], float]]
+    _environ: Optional[Mapping[str, str]]
+
+class CommuneConsole(Console):        
+    @classmethod
+    def __get_pydantic_core_schema__(cls):
+        return ConsoleSchema
+        
 
 class CRUD(ABC):
     @abstractmethod
@@ -26,7 +69,6 @@ class CRUD(ABC):
     @abstractmethod
     def delete(self):
         pass
-
 
 path = Path(__file__).parent.resolve()
 
