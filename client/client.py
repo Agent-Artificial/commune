@@ -17,12 +17,18 @@ class CommuneCRUD(CRUD):
         self.module = Module()
         self.keys_hidden_path = "/home/bakobi/.commune/key/"
         self.keys = os.listdir(self.keys_hidden_path)
-    async def list(self):
+    def list_balances(self):
+        balances = []
         for key in self.keys:
+            if key.startswith("key2"):
+                continue
             key = key.split(".")[0]
-            print(key)
-            await self.module.stats(key)
-
+            name = self.module.address2name(key)
+            balances.append({"name": name, "balance": self.module.balance(key)})
+        return balances
+            
+    def list(self):
+        return self.keys
         
     def get(self):
         return self.commune
@@ -33,10 +39,11 @@ class CommuneCRUD(CRUD):
     def delete(self):
         return self.commune
 
-async def main():
+def main():
     client = CommuneCRUD()
 
-    await client.list()
+    balances = client.list_balances()
+    print([balances])
 
 if __name__ =="__main__":
-    asyncio.run(main())
+   main()

@@ -390,7 +390,7 @@ class c:
         path = cls.resolve_path(path, root=root)
         
         from commune.utils.dict import load_yaml
-        config = load_yaml(path)
+        config =  load_yaml(path)
         return config
     
     get_yaml = load_yaml

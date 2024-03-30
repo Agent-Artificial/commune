@@ -5,7 +5,6 @@ from rich.console import Console
 from rich.theme import Theme
 from rich.style import StyleType
 from rich.emoji import EmojiVariant
-from rich
 from dotenv import load_dotenv
 from datetime import datetime
 from abc import ABC, abstractmethod
@@ -15,6 +14,8 @@ load_dotenv()
 FormatTimeCallable = Callable[[Union[int, float]], str]
 
 class ConsoleSchema(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
     color_system: Optional[Literal["auto", "standard", "256", "truecolor", "windows"]]
     force_terminal: Optional[bool]
     force_jupyter: Optional[bool]
@@ -44,7 +45,9 @@ class ConsoleSchema(BaseModel):
     get_time: Optional[Callable[[], float]]
     _environ: Optional[Mapping[str, str]]
 
-class CommuneConsole(Console):        
+class CommuneConsole(Console):   
+    class Config:
+        arbitrary_types_allowed = True     
     @classmethod
     def __get_pydantic_core_schema__(cls):
         return ConsoleSchema
@@ -73,6 +76,8 @@ class CRUD(ABC):
 path = Path(__file__).parent.resolve()
 
 class CommuneConfig(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
     cost: int
     description: str
     base_module: str
