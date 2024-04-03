@@ -1760,18 +1760,18 @@ class Subspace(c.Module):
 
 
     def register_subnets( self, *subnets, module='vali', **kwargs ) -> Optional['Balance']:
-            """
-            Registers one or more subnets with the specified module and returns a list of responses.
-            
-            Args:
-                *subnets (str or List[str]): The subnets to register. Can be a single subnet or a list of subnets.
-                module (str, optional): The module to register the subnets with. Defaults to 'vali'.
-                **kwargs: Additional keyword arguments to pass to the register function.
-            
-            Returns:
-                Optional[List[str]]: A list of responses, where each response corresponds to the registration of a subnet. 
-                                    Returns None if no subnets were registered.
-            """
+        """
+        Registers one or more subnets with the specified module and returns a list of responses.
+        
+        Args:
+            *subnets (str or List[str]): The subnets to register. Can be a single subnet or a list of subnets.
+            module (str, optional): The module to register the subnets with. Defaults to 'vali'.
+            **kwargs: Additional keyword arguments to pass to the register function.
+        
+        Returns:
+            Optional[List[str]]: A list of responses, where each response corresponds to the registration of a subnet. 
+                                Returns None if no subnets were registered.
+        """
         if len(subnets) == 1:
             subnets = subnets[0]
         subnets = list(subnets)
@@ -5550,18 +5550,20 @@ class Subspace(c.Module):
                  update=False,
                  fmt='j'
                  ):
-            """
-            Calculate the sum of the total stake and total balance for a given network.
-
-            :param network: The network to calculate the sum for. Default is 'main'.
-            :type network: str
-            :param update: Whether to update the values before calculating the sum. Default is False.
-            :type update: bool
-            :param fmt: The format of the returned value. Default is 'j'.
-            :type fmt: str
-
-            :return: The sum of the total stake and total balance.
-            :rtype: int or float
+        """
+        Calculate the sum of the total stake and total balance for a given network.
+        
+        :param network: The network to calculate the sum for. Default is 'main'.
+        :type network: str
+        
+        :param update: Whether to update the values before calculating the sum. Default is False.
+        :type update: bool
+        
+        :param fmt: The format of the returned value. Default is 'j'.
+        :type fmt: str
+        
+        :return: The sum of the total stake and total balance.
+        :rtype: int or float
             """
         return self.my_total_stake(network=network, update=update, fmt=fmt,) + \
                     self.my_total_balance(network=network, update=update, fmt=fmt)
