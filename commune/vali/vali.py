@@ -628,3 +628,17 @@ class Vali(c.Module):
 
         
 Vali.run(__name__)
+
+
+
+Class something:
+    def __init__(self):
+        pass
+    def register(self):
+        pass
+
+    def execute(self):
+        pass
+    def info(self):
+        pass
+    
