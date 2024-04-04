@@ -247,8 +247,9 @@ class KeyRingManager:
 
 if __name__== "__main__":
     km = KeyRingManager()
-    km.load_keys(Path("~").expanduser() / ".commune" / "key")
+    #km.load_keys(Path("~").expanduser() / ".commune" / "key")
     #print(km.keyring)
     #print(km.keynames)
     #print(km.key2ss58addresses)
-    print(km.key2mnemonics)
+    #print(km.key2mnemonics)
+    
