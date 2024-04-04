@@ -11,25 +11,36 @@ class CommuneClient:
         self.subspace = Subspace()
         self.km = KeyRingManager()
         self.key = CommuneKey
-        self.keynames = [key for key in self.km.keyring.keys()]
+        self.keynames = self.km.key2ss58addresses.keys()
 
     def getbalance(
         self, 
         key_name: Optional[str] = None,
         ss58key: Optional[str] = None,
         ):
-        for keyname in self.keynames:
-            if key_name:
-                ss58key = self.km.keyring[keyname].ss58_address
-            if not ss58key:
-                raise ValueError("ss58key is required")
-            key = self.km.keyring[keyname]
-            if ss58key == key.ss58_address:
-                return {"keyname": keyname, "balance":self.subspace.get_balance(
-                    key=ss58key)}
+        address = None
+        
+        if not key_name:
+            address = ss58key
+            
+        if key_name:
+            if key_name.startswith("5"):
+                address = key_name
             else:
-                continue
-        return {"keyname": ss58key, "balance": "key not found"}
+                key = self.km.keyring[key_name]
+                address = key.ss58_address
+                
+        if ss58key:
+            address = ss58key
+            
+        if not address:
+            raise ValueError("address is required")
+
+        if address in self.km.key2ss58addresses.values():
+            return {"keyname": ss58key, "balance":self.subspace.get_balance(
+                key=address)}
+        else:
+            return {"keyname": ss58key, "balance":"Error: Key Not Found"}
 
     def getbalances(self):
         balances = {}
@@ -42,17 +53,14 @@ class CommuneClient:
     def get_key(self, keyname: str):
         return self.km.keyring[keyname]
 
-    def balance_transfer(self, to_key, from_key):
-        return self.module.transfer
-
-async def main():
-    bow = CommuneClient()
-    return bow.getbalances()
-        
+    def balance_transfer(self, amount, to_key, from_key, network=None, nonce=None):
+        self.subspace.transfer(amount=amount, dest=to_key, key=from_key, network=network, nonce=nonce)
 
 if __name__ == "__main__":
-    bow = CommuneClient()
-    keynames = [key for key in bow.km.keyring.keys()]
-    key = bow.km.keyring[keynames[0]]
-    balance = bow.getbalance(ss58key=key.ss58_address)
+    client = CommuneClient()
+    keynames = client.km.keynames
+    keyname = keynames[1]
+    address = client.km.key2ss58addresses[keyname]
+    balance = client.subspace.get_balance(address)
     print(balance)
+    

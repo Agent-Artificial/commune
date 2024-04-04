@@ -7,7 +7,7 @@
 env/
 # weigths and biases
 wandb/
-
+.env
 
 # benchmark results
 benchmarks/results/

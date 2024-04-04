@@ -426,7 +426,7 @@ class Subspace(c.Module):
               module:str='SubspaceModule',
               block=None,  
               netuid = None,
-              network: str = network, 
+              network = network, 
               save= True,
               mode = 'http',
             update=False):
@@ -452,11 +452,11 @@ class Subspace(c.Module):
             value = self.get(path, None)
             if value != None:
                 return value
-        substrate = self.get_substrate(network=network, mode=mode)
+        substrate = self.get_substrate(network=str(network), mode=mode)
         response =  substrate.query(
             module=module,
             storage_function = name,
-            block_hash = None if block == None else substrate.get_block_hash(block), 
+            block_hash = block or substrate.get_block_hash(),
             params = params
         )
         value =  response.value
@@ -4128,9 +4128,9 @@ class Subspace(c.Module):
         self,
         dest: str, 
         amount: float , 
-        key: str = None,
-        network : str = None,
-        nonce= None,
+        key: str = '',
+        network: Optional[str] = None,
+        nonce: Optional[Any] = None,
         **kwargs
         
     ) -> bool:
@@ -4163,7 +4163,7 @@ class Subspace(c.Module):
             dest = amount
             amount = new_amount
         key = self.resolve_key(key)
-        network = self.resolve_network(network)
+        network = self.resolve_network(int(network))
         dest = self.resolve_key_ss58(dest)
         amount = self.to_nanos(amount) # convert to nano (10^9 nanos = 1 token)
 

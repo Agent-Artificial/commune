@@ -3,11 +3,10 @@ import os
 import json
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Optional, Dict, List, Any, Union
+from typing import Optional, Dict, Union, Callable, Any
 from abc import ABC, abstractmethod
 from commune.subspace.subspace import Subspace
 from manager.encryption import encrypt_json, decrypt_json
-from getpass import getpass
 from dotenv import load_dotenv
 
 
@@ -18,49 +17,18 @@ subspace = Subspace()
 
 
 class KeyConfigModel(BaseModel):
-    """
-    A pydantic model for storing key configurations.
-    """
     crypto_type: Union[str, int]
-    """
-    The cryptographic algorithm used to generate the key pair.
-    """
     seed_hex: str
-    """
-    The seed used to generate the key pair in hexadecimal format.
-    """
     derive_path: Optional[Union[Path, str]]
-    """
-    The derivation path used to derive the key pair from the seed, if applicable.
-    """
     path: Union[Path, str]
-    """
-    The location of the key file.
-    """
     ss58_format: Union[str, int]
-    """
-    The ss58 address format of the key.
-    """
     public_key: str
-    """
-    The public key of the key pair in hexadecimal format.
-    """
     private_key: str
-    """
-    The private key of the key pair in hexadecimal format.
-    """
     mnemonic: str
-    """
-    The mnemonic seed phrase used to generate the key pair.
-    """
     ss58_address: str
-    """
-    The ss58 address of the key.
-    """
 
 
 class AbstractKey(ABC):
-    """Abstract base class for key objects."""
 
     @abstractmethod
     def __init__(self):
@@ -96,12 +64,20 @@ class CommuneKey(KeyConfigModel, AbstractKey):
         private_key,
         mnemonic,
         ss58_address,
-        ):
+        ) -> None:
         """
-        Initializes the object with the given configuration parameters.
+        Initialize the class with the provided parameters.
 
-        Args:
-            **kwargs: Arbitrary keyword arguments.
+        Parameters:
+            crypto_type (str): The type of cryptocurrency.
+            seed_hex (str): The seed in hexadecimal format.
+            derive_path (str): The derivation path.
+            path (str): The path.
+            ss58_format (str): The ss58 format.
+            public_key (str): The public key.
+            private_key (str): The private key.
+            mnemonic (str): The mnemonic.
+            ss58_address (str): The ss58 address.
 
         Returns:
             None
@@ -118,91 +94,90 @@ class CommuneKey(KeyConfigModel, AbstractKey):
             ss58_address = ss58_address,
             )
         
+    def get_name(self) -> str:
+        """
+        A function that returns the name of the key.
+        Returns:
+            str: The name of the key.
+        """
+        return str(self.path).split("/")[-1].split(".")[0]
+        
 
     def key2address(self) -> Dict[str, str]:
         """
-        Returns a dictionary mapping the name of the object to its corresponding SS58 address.
-
-        :return: A dictionary with the object name as the key and the SS58 address as the value.
-        :rtype: Dict[str, str]
+        A function that generates a dictionary mapping the name to the SS58 address.
+        Returns a dictionary with the name as key and SS58 address as value.
         """
-        return {
-            self.name: self.ss58_address
-        }
+        return {str(self.get_name): self.ss58_address}
 
     def key2mnemonic(self) -> Dict[str, str]:
         """
-        Generates a dictionary that maps the name of the object to its mnemonic.
-
-        Returns:
-            Dict[str, str]: A dictionary where the keys are the names of the object and the values are the corresponding mnemonics.
-        """
-        return {
-            self.name: self.mnemonic
-        }
-
-    def key2path(self) -> Dict[str, str]:
-        """
-        Returns a dictionary mapping the name of the object to its path.
-
-        :return: A dictionary with the object's name as the key and its path as the value.
+        A function that converts a key to a mnemonic and returns a dictionary with the key as the name and the mnemonic as the value.
+        :return: A dictionary containing the key as the name and the mnemonic as the value.
         :rtype: Dict[str, str]
         """
-        return {
-            self.name: self.path
-        }
+        return {str(self.get_name): self.mnemonic}
+
+    def key2path(self) -> Dict[str, Union[Path,str]]:
+        """
+        Generate a dictionary mapping the name to the path.
+        Returns:
+            Dict[str, Union[Path, str]]: A dictionary with the name as key and path as value.
+        """
+        return {str(self.get_name): self.path}
+    
     def staked_balance(self) -> float:
+        """
+        A function that calculates the staked balance of the user.
+
+        :return: a float representing the staked balance
+        """
         return 0
 
     def module_information(self) -> float:
+        """
+        Retrieve information about the module.
+        """
         return 0
 
 
 class KeyRingManager:
-    """
-    Class for managing keys stored on the system.
-
-    Attributes:
-        keyring (Dict[str, Dict[str, str]]): A dictionary of keys and their corresponding data.
-        key2ss58address (Dict[str, str]): A dictionary of keys and their corresponding SS58 addresses.
-        key2mnemonic (Dict[str, str]): A dictionary of keys and their corresponding mnemonic phrases.
-    """
     home = Path("~").expanduser()
     pwd = Path(home / "commune").absolute()
     key_path = Path(home/ ".commune" / "key").absolute()
 
     def __init__(self):
+        """
+        Initializes the class instance by setting up dictionaries for keyring, ss58 addresses, and mnemonics.
+        Parses system keys from the specified key path and initializes keynames.
+        """
         self.keyring: Dict[str, CommuneKey] = {}
         self.key2ss58addresses: Dict[str, str] = {}
         self.key2mnemonics: Dict[str, str] = {}
+        self.parse_system_keys(self.key_path)
+        self.keynames = list(self.key2mnemonics.keys())
 
     def load_keys(self, key_path: Path) -> None:
         """
-        Load keys from the system.
-
-        Args:
-            password (str): The password to decrypt the keys with.
-            path (str): The path to the key folder.
+        Loads keys from the specified key path or from the default key path.
+        
+        :param key_path: The path to the keys.
+        :return: None
         """
         keypath = Path(key_path) or KeyRingManager.key_path
         self.parse_system_keys(keypath)
 
     def get_keys(self) -> Dict[str, str]:
         """
-        Returns a dictionary of keys and their corresponding SS58 addresses.
-
-        :return: A dictionary of keys and their corresponding SS58 addresses.
-        :rtype: Dict[str, str]
+        Return a dictionary of keys and their corresponding SS58 addresses.
         """
         return self.key2ss58addresses
 
     def parse_system_keys(self, key_path: Path) -> None:
         """
-        Parse the keys stored on the system.
-
-        Args:
-            password (str): The password to decrypt the keys with.
-            key_path (str): The path to the key folder.
+        Parse system keys from the given key_path. Update keyring mappings.
+        :param key_path: Path to the directory containing system keys.
+        :return: None
         """
         keypath = Path(key_path) or KeyRingManager.key_path
         files = os.listdir(keypath)
@@ -236,14 +211,14 @@ class KeyRingManager:
 
     def encrypt(self, keyname: str, password: str) -> Dict[str, str]:
         """
-        Encrypt a key.
-
-        Args:
-            keyname (str): The name of the key to encrypt.
-            password (str): The password to encrypt the key with.
-
+        A function that encrypts data using a specified keyname and password.
+        
+        Parameters:
+            keyname (str): The name of the key to be used for encryption.
+            password (str): The password to encrypt the data.
+        
         Returns:
-            Dict[str, str]: The encrypted key.
+            Dict[str, str]: A dictionary containing the encrypted data.
         """
         key: CommuneKey = self.keyring[keyname]
         if isinstance(key, CommuneKey):
@@ -253,14 +228,14 @@ class KeyRingManager:
 
     def decrypt(self, keyname: str, password: str) -> Dict[str, CommuneKey]:
         """
-        Decrypt a key.
+        Decrypts a specific key in the keyring using the provided password.
 
-        Args:
+        Parameters:
             keyname (str): The name of the key to decrypt.
-            password (str): The password to decrypt the key with.
+            password (str): The password used for decryption.
 
         Returns:
-            Dict[str, str]: The decrypted key.
+            Dict[str, CommuneKey]: A dictionary containing the decrypted key.
         """
         full_key = self.keyring[keyname]
         if isinstance(full_key, dict):
@@ -274,5 +249,6 @@ if __name__== "__main__":
     km = KeyRingManager()
     km.load_keys(Path("~").expanduser() / ".commune" / "key")
     #print(km.keyring)
+    #print(km.keynames)
     #print(km.key2ss58addresses)
-    #print(km.key2mnemonics)
+    print(km.key2mnemonics)
