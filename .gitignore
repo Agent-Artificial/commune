@@ -8,12 +8,12 @@ env/
 # weigths and biases
 wandb/
 .env
-
+vali::agentartificial.json
 # benchmark results
 benchmarks/results/
 benchmarks/results/*
 !benchmarks/results
-
+addys.txt
 *.csv
 *.torch
 *.pt

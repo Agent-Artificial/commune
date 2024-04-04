@@ -204,10 +204,10 @@ class KeyRingManager:
                     )
                 except Exception as e:
                     raise ValueError(f"Failed to parse key {filename} due to {e}") from e
-
-                self.keyring[filename] = key
-                self.key2ss58addresses[filename] = key.ss58_address
-                self.key2mnemonics[filename] = key.mnemonic
+                name = filename.split(".")[0]
+                self.keyring[name] = key
+                self.key2ss58addresses[name] = key.ss58_address
+                self.key2mnemonics[name] = key.mnemonic
 
     def encrypt(self, keyname: str, password: str) -> Dict[str, str]:
         """

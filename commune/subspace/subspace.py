@@ -1696,7 +1696,11 @@ class Subspace(c.Module):
     
     def subnet2emission( self, network: int = None, block: Optional[int] = None ) -> Optional[float]:
         """
-        A description of the entire function, its parameters, and its return types.
+        A function that calculates emission based on subnet parameters.
+
+        :param network: An integer representing the network.
+        :param block: An optional integer representing the block.
+        :return: An optional float value representing the emission.
         """
         subnet2emission = self.subnet2params(network=network, block=block)
         return subnet2emission
