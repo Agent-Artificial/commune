@@ -85,7 +85,6 @@ class CommuneClient:
             for line in lines:
                 if line == address:
                     target_address = line
-
                     
             address = target_address.strip()
             balance = self.subspace.get_balance(address)
@@ -97,9 +96,7 @@ class CommuneClient:
             print(f"Stake to: {staketo}")
             print(f"Stake from: {stakefrom}")
             print(f"-----------")
-
-
-    
+   
     def register_module(
         self, keyname: str, 
         address: str, 
@@ -140,63 +137,74 @@ wait_for_finalization: {wait_for_finalization}
             )
         print(response)
 
+    def update_subnet(
+        Tempo=100,
+        ImmunityPeriod=100,
+        MinAllowedWeights=1,
+        MaxAllowedWeights=18446744073709551615,
+        MaxAllowedUids=4096,
+        MinStake=1,
+        Founder="5F4c6WjExFshz3QQ4U6xtEXqUyPFV2P66Z5ZBQpvSyCFnuHE",
+        FounderShare=20,
+        IncentiveRatio=50,
+        TrustRatio=10,
+        VoteThresholdSubnet=1,
+        VoteModeSubnet="authority",
+        MaxWeightAge=18446744073709551615,
+        SubnetNames="agentartificial",
+        MaxStake=18446744073709551615,
+    ):
+
+        return client.subspace.update_subnet(
+            netuid=52, 
+            key="key", 
+            params={
+                'tempo': Tempo,
+                'immunity_period': ImmunityPeriod,
+                'min_allowed_weights': MinAllowedWeights,
+                'max_allowed_weights': MaxAllowedWeights,
+                'max_allowed_uids': MaxAllowedUids,
+                'min_stake': MinStake,
+                'founder': Founder,
+                'founder_share': FounderShare,
+                'incentive_ratio': IncentiveRatio,
+                'trust_ratio': TrustRatio,
+                'vote_threshold': VoteThresholdSubnet,
+                'vote_mode': VoteModeSubnet,
+                'max_weight_age': MaxWeightAge,
+                'name': SubnetNames,
+                'max_stake': MaxStake
+            }
+        )
+
 if __name__ == "__main__":
     client = CommuneClient()
+    keynames = client.km.keynames
+    addresses = []
+    for name in keynames:
+        addresses.append(client.km.key2ss58addresses[name])
 
-    
-    keyname = client.km.keynames[5]
-    print(keyname)
-    address = client.km.key2ss58addresses[keyname]
-    print(address)
-    weights = client.subspace.weights(
-            netuid=52, 
-            network='main', 
-            update=False
-        )
-    result = client.subspace.vote(
-        uids=["3"], 
-        weights=weights,
-        netuid=52,
-        key="5ENWyzUKx3MHpG2gcpkFi388fDozEP2a1SCukjhsQfZfmKH1",
-        network="main"
-        )
+    client.check_input_list(address_list=addresses, netuid=52)
+    # keyname = client.km.keynames[5]
+    # print(keyname)
+    # address = client.km.key2ss58addresses[keyname]
+    # print(address)
+    # weights = client.subspace.weights(
+            # netuid=52, 
+            # network='main', 
+            # update=False
+        # )
+    # result = client.subspace.vote(
+        # uids=["3"], 
+        # weights=weights,
+        # netuid=52,
+        # key="5ENWyzUKx3MHpG2gcpkFi388fDozEP2a1SCukjhsQfZfmKH1",
+        # network="main"
+        # )
         
     print("TheRoost")
     print(result)
 
-    # Tempo=100
-    # ImmunityPeriod=100
-    # MinAllowedWeights=1
-    # MaxAllowedWeights=18446744073709551615
-    # MaxAllowedUids=4096
-    # MinStake=1
-    # Founder="5F4c6WjExFshz3QQ4U6xtEXqUyPFV2P66Z5ZBQpvSyCFnuHE"
-    # FounderShare=20
-    # IncentiveRatio=50
-    # TrustRatio=10
-    # VoteThresholdSubnet=1
-    # VoteModeSubnet="authority"
-    # MaxWeightAge=18446744073709551615
-    # SubnetNames="agentartificial"
-    # MaxStake=18446744073709551615
-# 
-    # update = client.subspace.update_subnet(netuid=52, key="5F4c6WjExFshz3QQ4U6xtEXqUyPFV2P66Z5ZBQpvSyCFnuHE", params={
-                # 'tempo': Tempo,
-                # 'immunity_period': ImmunityPeriod,
-                # 'min_allowed_weights': MinAllowedWeights,
-                # 'max_allowed_weights': MaxAllowedWeights,
-                # 'max_allowed_uids': MaxAllowedUids,
-                # 'min_stake': MinStake,
-                # 'founder': Founder,
-                # 'founder_share': FounderShare,
-                # 'incentive_ratio': IncentiveRatio,
-                # 'trust_ratio': TrustRatio,
-                # 'vote_threshold': VoteThresholdSubnet,
-                # 'vote_mode': VoteModeSubnet,
-                # 'max_weight_age': MaxWeightAge,
-                # 'name': SubnetNames,
-                # 'max_stake': MaxStake,
-    # })
 
     #balance = client.subspace.get_balance(address)
     #stake = client.get_stake(address)

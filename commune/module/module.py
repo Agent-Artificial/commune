@@ -51,16 +51,32 @@ class c:
     __ss58_format__ = 42 # the ss58 format for the substrate address
 
     def __init__(self, config:Dict=None, **kwargs):
+        """
+        Initialize the object with the given configuration and keyword arguments.
+
+        Parameters:
+            config (Dict): a dictionary containing configuration settings.
+            **kwargs: additional keyword arguments.
+
+        Returns:
+            None
+        """
         self.set_config(config=config,kwargs=kwargs)  
 
     @classmethod
     def init(cls, *args, **kwargs):
         return cls(*args, **kwargs)
 
+        """
+        A class method to initialize the class with the given arguments and keyword arguments.
+        """
 
     default_tag = 'base'
     @property
     def tag(self):
+        """
+        Property function to get the tag from the config dictionary.
+        """
         tag = None
         if not hasattr(self, 'config') or not isinstance(self.config, dict):
             self.config = c.dict2munch({})
@@ -70,6 +86,13 @@ class c:
     
     @tag.setter
     def tag(self, value):
+        """
+        A setter function to update the tag attribute in the config dictionary.
+        Parameters:
+            value (any): The value to be set as the tag in the config dictionary.
+        Returns:
+            any: The value that was set as the tag.
+        """
         if not hasattr(self, 'config') or not isinstance(self.config, dict):
             self.config = c.dict2munch({})
         self.config['tag'] = value
@@ -82,9 +105,19 @@ class c:
                    to_munch: bool = True,
                    add_attributes: bool = False,
                    save_config:bool = False) -> Munch:
-        '''
-        Set the config as well as its local params
-        '''
+        """
+        Set the configuration for the object.
+
+        Args:
+            config (Union[str, dict], optional): The configuration to be set. Defaults to None.
+            kwargs (dict, optional): Additional keyword arguments. Defaults to None.
+            to_munch (bool): Whether to convert the configuration to a Munch object. Defaults to True.
+            add_attributes (bool): Whether to add the configuration attributes to the class. Defaults to False.
+            save_config (bool): Whether to save the configuration. Defaults to False.
+
+        Returns:
+            Munch: The updated configuration.
+        """
         kwargs = kwargs if kwargs != None else {}
 
         # in case they passed in a locals() dict, we want to resolve the kwargs and avoid ambiguous args
@@ -113,6 +146,9 @@ class c:
 
     @property
     def key(self):
+        """
+        Property function to get the key. No parameters. Returns the key.
+        """
         if not hasattr(self, '_key'):
             self._key = c.get_key(self.server_name, create_if_not_exists=True)
         return self._key
@@ -135,6 +171,25 @@ class c:
                 kwargs = None,
                 return_future:bool = False,
                 **extra_kwargs) -> None:
+        """
+        A class method that makes a remote procedure call to a specified module and function. 
+
+            Parameters:
+                cls (class): The class itself.
+                module (str): The name of the module to call.
+                fn (str, optional): The name of the function to call. Defaults to None.
+                *args: Additional positional arguments for the function call.
+                timeout (int): The maximum time to wait for the function call to complete. Defaults to 10.
+                prefix_match (bool): Whether to perform a prefix match for the function name. Defaults to False.
+                network (str): The network to use for the function call.
+                key (str): The key to use for the function call.
+                kwargs: Additional keyword arguments for the function call.
+                return_future (bool): Whether to return a future for the function call. Defaults to False.
+                **extra_kwargs: Additional keyword arguments for the function call.
+
+            Returns:
+                None: If return_future is False, the function waits for the call to complete and returns None. If return_future is True, the function returns a future for the call.
+        """
 
         client_kwargs = { 
                           'network': network,
@@ -162,6 +217,22 @@ class c:
                 kwargs = None,
                 return_future:bool = False,
                 **extra_kwargs) -> None:
+        """
+        A class method for performing a search with various parameters and returning the result.
+        
+        Args:
+            search (str): The search query.
+            fn (str): The function name.
+            timeout (int): The maximum time to wait for the search.
+            network (str): The network to use for the search.
+            key (str): The key for the search.
+            kwargs (dict): Additional keyword arguments for the search.
+            return_future (bool): Whether to return a future object.
+            extra_kwargs (dict): Additional keyword arguments.
+        
+        Returns:
+            dict: The result of the search.
+        """
         if '/' in search:
             args = [fn] + list(args)
             module, fn = search.split('/')
@@ -211,6 +282,23 @@ class c:
                 default_fn = 'info',
                 **extra_kwargs
                 ) -> None:
+        """
+        An asynchronous class method for making an asynchronous call to a specified module and function, with optional arguments and timeout. 
+        Parameters:
+            module (str): The name of the module to call.
+            fn (str, optional): The name of the function to call. If not provided, a default function ('info') will be used.
+            *args: Additional positional arguments for the function call.
+            timeout (int, default=10): The timeout in seconds for the function call.
+            prefix_match (bool, default=False): Whether to use prefix matching for the module name.
+            network (str, optional): The network to connect to.
+            key (str, optional): The key for the connection.
+            kwargs (dict, optional): Additional keyword arguments for the function call.
+            verbose (bool, default=False): Whether to enable verbose mode.
+            default_fn (str, default='info'): The default function name to use if fn is not provided.
+            **extra_kwargs: Additional keyword arguments for the function call.
+        Returns:
+            None
+        """
         
         if '://' in module:
             module = module.split('://')[-1]
@@ -234,33 +322,59 @@ class c:
         
         return result
 
-    
-
-
-
     def getattr(self, k:str)-> Any:
+        """
+        Get attribute k from the object.
+        Args:
+            k (str): The attribute name.
+        Returns:
+            Any: The value of the attribute.
+        """
         return getattr(self,  k)
 
     @classmethod
     def getclassattr(cls, k:str)-> Any:
         return getattr(cls,  k)
     
+        """
+        A description of the entire function, its parameters, and its return types.
+        """
     @classmethod
     def module_file(cls) -> str:
+        """
+        get the file of the module
+        """
         # get the file of the module
         return inspect.getfile(cls)
 
     @classmethod
     def module_dirpath(self) -> str:
+        """
+        A method that returns the directory path of the module.
+        This method takes no parameters and returns a string representing the directory path.
+        """
         return  os.path.dirname(self.module_file())
 
     @classmethod
     def __module_dir__(cls) -> str :
+        """
+        Return the directory of the module.
+        """
         # get the directory of the module
         return os.path.dirname(cls.module_file())
     
     @classmethod
     def get_module_path(cls, obj=None,  simple:bool=False) -> str:
+        """
+        A method that returns the path of the module where an object is defined.
+
+        Parameters:
+            obj: Optional, the object to get the module path for.
+            simple: Optional boolean flag, if True, returns a simplified version of the module path.
+
+        Returns:
+            str: The path of the module where the object is defined.
+        """
         # odd case where the module is a module in streamlit
         obj = cls.resolve_module(obj)
         module_path =  inspect.getfile(obj)
@@ -271,6 +385,16 @@ class c:
     
     @classmethod
     def get_module_dirpath(cls, obj=None,  simple:bool=False) -> str:
+        """
+        Get the directory path of the module containing the given object.
+
+        Args:
+            obj: The object whose module directory path is to be obtained. Defaults to None.
+            simple: A boolean indicating whether to use a simple path. Defaults to False.
+
+        Returns:
+            str: The directory path of the module containing the given object.
+        """
         return  os.path.dirname(c.get_module_path(obj=obj, simple=simple))
     get_module_dir = get_module_dirpath
     
@@ -284,6 +408,12 @@ class c:
 
     @classmethod
     def gitpath(cls ,root='https://github.com/commune-ai/commune/tree/main/'):
+        """
+        A class method that generates a GitHub URL path based on the given root URL and the file path after removing the modules path prefix.
+        
+        :param root: The root URL for the GitHub repository (default is 'https://github.com/commune-ai/commune/tree/main/')
+        :return: The complete GitHub URL path after concatenating the root URL and the modified file path
+        """
         
         filepath = cls.filepath().replace(c.modules_path, '')
         
@@ -317,12 +447,21 @@ class c:
     @classmethod
     def images(cls, *args, **kwargs):
         """
-        images
+        returns docker images
         """
         return c.module('docker').images(*args, **kwargs)
     
     @classmethod
     def module_path(cls, simple:bool=True) -> str:
+        """
+        A method to retrieve the module path.
+
+        Args:
+            simple (bool, optional): A boolean flag to indicate whether to retrieve the simple module path. Defaults to True.
+
+        Returns:
+            str: The module path after removing the 'modules.' prefix.
+        """
         # get the module path
         
         path = cls.get_module_path(simple=simple)
@@ -333,13 +472,30 @@ class c:
     
     @classmethod
     def module_class(cls) -> str:
+        """
+        A class method that returns the name of the class.
+        Returns:
+            str: The name of the class.
+        """
         return cls.__name__
     @classmethod
     def class_name(cls, obj= None) -> str:
+        """
+        A class method that returns the name of the object. 
+        It takes an optional 'obj' parameter which defaults to None.
+        Returns a string representing the name of the object.
+        """
         obj = obj if obj != None else cls
         return obj.__name__
     @classmethod
     def get_class_name(cls, obj = None) -> str:
+        """
+        A method to get the name of the class for a given object or class.
+        
+        :param cls: The class object to retrieve the name from.
+        :param obj: The object to retrieve the class name from. Defaults to None.
+        :return: A string representing the name of the class.
+        """
         obj = obj if obj != None else cls
         if not cls.is_class(obj):
             obj = type(obj)
@@ -357,6 +513,9 @@ class c:
 
     @classmethod
     def config_path(cls) -> str:
+        """
+        Return the configuration file path in YAML format based on the module path.
+        """
         return cls.get_module_path(simple=False).replace('.py', '.yaml')
     
     @classmethod    
@@ -398,6 +557,13 @@ class c:
 
     @classmethod
     def fn2code(cls, search=None, module=None)-> Dict[str, str]:
+        """
+        Generate a mapping of function names to their corresponding code snippets.
+
+        :param search: Optional parameter to filter functions by a search term
+        :param module: Optional module to search for functions, defaults to the current class
+        :return: Dictionary with function names as keys and code snippets as values
+        """
         module = module if module else cls
         functions = module.fns(search)
         fn_code_map = {}
@@ -453,7 +619,7 @@ class c:
     @classmethod
     def save_yaml(cls, path:str,  data: dict, root:bool = False) -> Dict:
         '''
-        Loads a yaml file
+        saves a yaml file
         '''
         path = cls.resolve_path(path, root=root)
             
@@ -488,6 +654,10 @@ class c:
     
     @classmethod
     def config_path(cls) -> str:
+        """
+        A class method that returns a string representing the path of the YAML configuration file.
+        This function does not take any parameters and returns a string.
+        """
         path = cls.module_file().replace('.py', '.yaml')
         return path
     
@@ -524,6 +694,17 @@ class c:
     encrypted_prefix = 'ENCRYPTED'
     @classmethod
     def encrypt_file(cls, path:str, password=None, key=None,) -> str:
+        """
+        A class method to encrypt a file using a specified key or password.
+        
+        Parameters:
+            path (str): The path to the file to be encrypted.
+            password (str, optional): The password to use for encryption. Defaults to None.
+            key (str, optional): The key to use for encryption. Defaults to None.
+            
+        Returns:
+            str: The path where the encrypted file is stored.
+        """
         key = c.get_key(key)
         text = cls.get_text(path)
         r = key.encrypt(text, password=password)
@@ -531,6 +712,18 @@ class c:
         
     @classmethod
     def decrypt_file(cls, path:str, key=None, password=None, **kwargs) -> str:
+        """
+        Decrypts a file using the provided key or password.
+
+        Args:
+            path (str): The path to the file to be decrypted.
+            key: The key used for decryption. If not provided, the default key is used.
+            password: The password used for decryption. If not provided, the default password is used.
+            **kwargs: Additional keyword arguments for decryption.
+
+        Returns:
+            str: The decrypted text.
+        """
         key = c.get_key(key)
         text = cls.get_text(path)
         r = key.decrypt(text, password=password,key=key, **kwargs)
@@ -539,6 +732,11 @@ class c:
 
 
     def test_file(self, k='test_a', v=1):
+        """
+        Function to test a file, with optional parameters k and v. 
+        This function performs a series of operations on the file, including putting, asserting existence, encrypting, printing, decrypting, getting, removing, and performing additional assertions. 
+        It returns a dictionary with a success status and a message indicating the test result.
+        """
         c.put(k,v)
         assert self.exists(k)
         self.encrypt_file(k)
@@ -633,6 +831,16 @@ class c:
 
     @classmethod
     def obj_age(cls, item:dict) -> int:
+        """
+        Calculate the age of an object based on the timestamp provided in the item dictionary.
+
+        Parameters:
+            cls: The class reference.
+            item (dict): A dictionary containing information about the item.
+
+        Returns:
+            int: The age of the object in seconds.
+        """
         return c.timestamp() - int(cls.get_json(item).get('timestamp', 0))
 
     @classmethod
@@ -655,6 +863,17 @@ class c:
 
     @classmethod
     def get_age(cls, k:int=0, scale:str = 'hours', **kwargs) -> int:
+        """
+        A method to calculate age based on a given timestamp and scale.
+        
+        Parameters:
+            k (int): A default value of 0.
+            scale (str): A string indicating the time scale to convert to. Default is 'hours'.
+            **kwargs: Additional keyword arguments.
+        
+        Returns:
+            int: The calculated age based on the given timestamp and scale.
+        """
 
         try:
             timestamp =  cls.get_json(k).get('timestamp', 0)
@@ -674,6 +893,16 @@ class c:
     
     @staticmethod
     def too_old(self, timestamp:int, max_age:int):
+        """
+        Check if the given timestamp is older than the specified max_age.
+        
+        Args:
+            timestamp (int): The timestamp to be checked.
+            max_age (int): The maximum allowed age in seconds.
+        
+        Returns:
+            bool: True if the timestamp is older than max_age, False otherwise.
+        """
         return c.time() - timestamp > max_age
     
     
@@ -693,6 +922,14 @@ class c:
    
     
     def setc(self, k, v, password=None) -> Munch:
+        """
+        Set a key-value pair in the configuration object.
+
+        :param k: The key to set.
+        :param v: The value to associate with the key.
+        :param password: Optional password for authentication.
+        :return: The updated configuration object.
+        """
         return setattr(self.config, k, v)
    
    
@@ -826,10 +1063,18 @@ class c:
 
     @classmethod
     def cfg(cls, *args, **kwargs):
+        """
+        Class method to retrieve configuration using the get_config method.
+        """
         return cls.get_config(*args, **kwargs)
 
     @classmethod
     def flatten_dict(cls, x = {'a': {'b': 1, 'c': {'d': 2, 'e': 3}, 'f': 4}}):
+        """
+        A class method to flatten a nested dictionary. 
+        Takes an optional input dictionary 'x' with default value {'a': {'b': 1, 'c': {'d': 2, 'e': 3}, 'f': 4}}. 
+        Returns a flattened dictionary.
+        """
         from commune.utils.dict import deep2flat
         return deep2flat(x)
 
@@ -849,18 +1094,31 @@ class c:
 
     @classmethod
     def start_local_node(cls, *args, **kwargs):
+        """
+        A class method to start a local node, with arguments and keyword arguments.
+        """
         return c.module('subspace.chain').start_local_node(*args, **kwargs)
 
     @classmethod
     def start_public_nodes(cls, *args, **kwargs):
+        """
+        A method to start public nodes with the given arguments and keyword arguments.
+        """
         return c.module('subspace.chain').start_public_nodes(*args, **kwargs)
 
     @classmethod  
     def start_chain(cls, *args, **kwargs):
+        """
+        A class method to start a chain with the given arguments and keyword arguments.
+        """
         return c.module('subspace.chain').start_chain(*args, **kwargs)
     
     @classmethod
     def kill_chain(cls, *args, **kwargs):
+        """
+        A class method that calls the 'kill_chain' method from 'subspace.chain' module with the provided arguments and keyword arguments. 
+        Returns a dictionary with keys 'success' set to True and 'msg' set to 'killed chain'.
+        """
         c.module('subspace.chain').kill_chain(*args, **kwargs)
         return {'success': True, 'msg': 'killed chain'}
     def seconds_per_epoch(self, *args, **kwargs):
@@ -869,10 +1127,20 @@ class c:
     # KEY LAND
     @classmethod
     def add_key(cls, *args, **kwargs):
+        """
+        A method that adds a key using the 'add_key' method of the 'key' module in the 'c' module.
+        
+        :param args: Variable length argument list.
+        :param kwargs: Arbitary keyword arguments.
+        :return: The result of calling the 'add_key' method in the 'key' module of the 'c' module.
+        """
         return c.module('key').add_key(*args, **kwargs)
     
     @classmethod
     def getmem(self, *args, **kwargs):
+        """
+        Get memory information using the specified key and return the result.
+        """
         return c.module('key').getmem(*args, **kwargs)
     mem = getmem
 
@@ -888,31 +1156,71 @@ class c:
     # KEY LAND
     @classmethod
     def switch_key(cls, *args, **kwargs):
+        """
+        Class method to switch a key using the specified arguments and keyword arguments.
+        """
         return c.module('key').switch_key(*args, **kwargs)
 
     # KEY LAND
     @classmethod
     def rename_key(cls, *args, **kwargs):
+        """
+        A class method to rename a key by calling the corresponding method in the 'key' module.
+        """
         return c.module('key').rename_key(*args, **kwargs)
     mv_key = rename_key
     @classmethod
     def add_keys(cls, *args, **kwargs):
+        """
+        Class method to add keys using the specified arguments and keyword arguments.
+        """
         return c.module('key').add_keys(*args, **kwargs)
     @classmethod
     def key_exists(cls, *args, **kwargs):
+        """
+        A method that checks if a key exists by calling the key_exists method in the key module.
+        
+        Parameters:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        
+        Returns:
+            The result of calling the key_exists method in the key module.
+        """
         return c.module('key').key_exists(*args, **kwargs)
     @classmethod
     def ls_keys(cls, *args, **kwargs):
+        """
+        Class method to list keys, accepting arbitrary positional and keyword arguments.
+        """
         return c.module('key').ls_keys(*args, **kwargs)
     @classmethod
     def rm_key(cls, *args, **kwargs):
+        """
+        A method that removes a key using the 'rm_key' method from the 'key' module in the 'c' class.
+        
+        Parameters:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        
+        Returns:
+            The return value of the 'rm_key' method from the 'key' module in the 'c' class.
+        """
         return c.module('key').rm_key(*args, **kwargs)
     @classmethod
     def key_encrypted(cls, *args, **kwargs):
+        """
+        A class method to call the key_encrypted function from the 'key' module with the given arguments and keyword arguments.
+        """
         return c.module('key').key_encrypted(*args, **kwargs)
 
     @classmethod
     def encrypt_key(cls, *args, **kwargs):
+        """
+        Class method to encrypt a key using the 'key' module. 
+        Accepts any number of positional and keyword arguments.
+        Returns the encrypted key.
+        """
         return c.module('key').encrypt_key(*args, **kwargs)
         
 
@@ -944,10 +1252,18 @@ class c:
         return config
     @classmethod
     def gradio(self, *args, **kwargs):
+        """
+        A class method that acts as a wrapper for the 'gradio' function from the 'c' module. 
+        Accepts any number of positional and keyword arguments. 
+        Returns the result of calling 'c.module('gradio')' with the provided arguments.
+        """
         return c.module('gradio')(*args, **kwargs)
     
     @classmethod
     def dash(cls, *args, **kwargs):
+        """
+        A class method that calls the 'st' method of the class with the provided arguments and keyword arguments.
+        """
         return cls.st(*args, **kwargs)
 
     @classmethod
