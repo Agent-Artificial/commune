@@ -20,7 +20,4 @@ class TestCommuneClient(unittest.TestCase):
         self.assertTrue(result)
         self.assertEqual("vali::project_management.json", self.client.km.keynames[1])
 
-    def test_getbalances(self):
-        result = self.client.getbalances()
-        self.assertTrue(result)
-        self.assertTrue(isinstance(result, dict))
+

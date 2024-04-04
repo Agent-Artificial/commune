@@ -5121,8 +5121,18 @@ class Subspace(c.Module):
         update=False,
     ) -> bool:
         """
-        A description of the entire function, its parameters, and its return types.
+        A voting function that allows users to vote on a network. 
+        Parameters:
+            - uids: Union['torch.LongTensor', list] = None
+            - weights: Union['torch.FloatTensor', list] = None
+            - netuid: int = 0
+            - key: 'c.key' = None
+            - network
+            - update: bool = False
+        Returns:
+            - bool: True if the voting is successful, False otherwise.
         """
+    
         import torch
         network = self.resolve_network(network)
         netuid = self.resolve_netuid(netuid)
