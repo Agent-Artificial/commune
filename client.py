@@ -11,7 +11,7 @@ class CommuneClient:
         self.subspace = Subspace()
         self.km = KeyRingManager()
         self.key = CommuneKey
-        self.keynames = self.km.key2ss58addresses.keys()
+        self.keynames = [key for key in self.km.key2ss58addresses.keys()]
 
     def getbalance(
         self, 

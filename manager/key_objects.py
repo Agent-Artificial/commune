@@ -155,7 +155,7 @@ class KeyRingManager:
         self.key2ss58addresses: Dict[str, str] = {}
         self.key2mnemonics: Dict[str, str] = {}
         self.parse_system_keys(self.key_path)
-        self.keynames = list(self.key2mnemonics.keys())
+        self.keynames = [key for key in self.key2ss58addresses.keys()]
 
     def load_keys(self, key_path: Path) -> None:
         """
