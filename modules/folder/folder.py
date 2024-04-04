@@ -32,6 +32,3 @@ class Folder(c.Module):
         latency = c.time() - t1 
         
         return {'to': to, 'latency': latency}
-    
-    
-    

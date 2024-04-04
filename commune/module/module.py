@@ -367,7 +367,7 @@ class c:
         path = cls.resolve_path(path)
         
         from commune.utils.dict import load_yaml
-        config = load_yaml(path)
+        config =  load_yaml(path)
         return config
     
     get_yaml = load_yaml
@@ -968,13 +968,15 @@ class c:
         Examples: import_object("torch.nn"): imports nn from torch
         
         '''
-        from importlib import import_module
-        module = '.'.join(key.split('.')[:-1])
-        object_name = key.split('.')[-1]
-        if verbose:
-            c.print(f'Importing {object_name} from {module}')
-        obj =  getattr(import_module(module), object_name)
-        return obj
+        if key != None:
+            from importlib import import_module
+            module = '.'.join(key.split('.')[:-1])
+            object_name = key.split('.')[-1]
+            if verbose:
+                c.print(f'Importing {object_name} from {module}')
+            obj =  getattr(import_module(module), object_name)
+            return obj
+        pass
     
     imp = get_object = importobj = import_object
 
