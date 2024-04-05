@@ -164,7 +164,7 @@ wait_for_finalization: {wait_for_finalization}
         MaxStake=18446744073709551615,
     ):
 
-        return client.subspace.update_subnet(
+        return self.subspace.update_subnet(
             netuid=52, 
             key="key", 
             params={
@@ -207,7 +207,3 @@ wait_for_finalization: {wait_for_finalization}
 
 if __name__ == "__main__":
     client = CommuneClient()
-    keynames = client.km.keynames
-    address = [address for address in client.km.key2ss58addresses]
-    print(client.check_input_list(address))
-    
