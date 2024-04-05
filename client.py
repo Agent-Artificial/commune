@@ -27,15 +27,15 @@ class CommuneClient:
         return self.subspace.get_balance(ss58key)
         
     def get_all_balances(self):
+        balances = []
         for name in self.keynames:
             if str(name).startswith("5"):
                 balance = self.getbalance(name)
                 print(name, balance)
             else:
                 key = self.km.keyring[name].ss58_address
-                balance = self.getbalance(name, key)
-                print(name, balance)
-        return True
+                balances.append(self.getbalance(name, key))
+        return balances
         
 
     def get_key(self, keyname: str):
@@ -74,29 +74,37 @@ class CommuneClient:
                 ))
         return stakes
 
-    def check_input_list(self, address_list, netuid=0):
+    def check_input_list(
+        self, 
+        address_list, 
+        netuid=0,
+        network='main'
+        ):
         if isinstance(address_list, list):
             lines = address_list
         else:
             with open(address_list, "r", encoding="utf-8") as f:
                 lines = f.readlines()
+        addresses = []
+        addy_list = []
+        stake2list = []
+        for key, address in self.km.key2ss58addresses.items():
+            addresses.append(f"{key}: {address}\n")
+            addy_list.append(address)
+            stake2list.append(self.get_stake_to(key, address, netuid=netuid))
+        address = "".join(addresses)
+        balances = self.get_all_balances()
+        stakefrom = self.get_all_staked_from()
+        
 
-        for name, address  in enumerate(self.km.key2ss58addresses.values()):
-            for line in lines:
-                if line == address:
-                    target_address = line
-                    
-            address = target_address.strip()
-            balance = self.subspace.get_balance(address)
-            staketo = self.get_stake_to(address=address, netuid=netuid)
-            stakefrom = self.get_staked_from(address=address, netuid=netuid)
-            print(address)
-            print(self.km.keynames[name])
-            print(f"Balance: {balance}")
-            print(f"Stake to: {staketo}")
-            print(f"Stake from: {stakefrom}")
+        for i, address in enumerate(addresses):
+            print(f"Key: {self.km.keynames[i]}")
+            print(f"Address: {address}")
+            print(f"Balance: {balances[i]}")
+            print(f"Stake from: {stakefrom[i]}")
+            print(f"stake to: {stake2list[i]}")
             print(f"-----------")
-   
+            
     def register_module(
         self, keyname: str, 
         address: str, 
@@ -124,7 +132,7 @@ wait_for_finalization: {wait_for_finalization}
             print("Aborting registration")
             return
         
-        response = client.subspace.register(
+        response = self.subspace.register(
             name=keyname,
             address=address,
             stake=stake,
@@ -138,6 +146,7 @@ wait_for_finalization: {wait_for_finalization}
         print(response)
 
     def update_subnet(
+        self,
         Tempo=100,
         ImmunityPeriod=100,
         MinAllowedWeights=1,
@@ -177,44 +186,28 @@ wait_for_finalization: {wait_for_finalization}
             }
         )
 
+    def vote(self, netuid, network, update, module_uids, voting_key):
+        keyname = self.km.keynames[5]
+        print(keyname)
+        address = self.km.key2ss58addresses[keyname]
+        print(address)
+        weights = self.subspace.weights(
+            netuid=netuid, 
+            network=network, 
+            update=update
+        )
+        result = self.subspace.vote(
+            uids=[uid for uid in module_uids],
+            weights=weights,
+            netuid=netuid,
+            key=voting_key,
+            network=network
+        )
+        return result
+
 if __name__ == "__main__":
     client = CommuneClient()
     keynames = client.km.keynames
-    addresses = []
-    for name in keynames:
-        addresses.append(client.km.key2ss58addresses[name])
-
-    client.check_input_list(address_list=addresses, netuid=52)
-    # keyname = client.km.keynames[5]
-    # print(keyname)
-    # address = client.km.key2ss58addresses[keyname]
-    # print(address)
-    # weights = client.subspace.weights(
-            # netuid=52, 
-            # network='main', 
-            # update=False
-        # )
-    # result = client.subspace.vote(
-        # uids=["3"], 
-        # weights=weights,
-        # netuid=52,
-        # key="5ENWyzUKx3MHpG2gcpkFi388fDozEP2a1SCukjhsQfZfmKH1",
-        # network="main"
-        # )
-        
-    print("TheRoost")
-    print(result)
-
-
-    #balance = client.subspace.get_balance(address)
-    #stake = client.get_stake(address)
-
-
-    # 
-    # print("Balances")
-    # client.get_all_balances()
-    # print("Stake")
-    # client.get_all_stake()
-
-    
+    address = [address for address in client.km.key2ss58addresses]
+    print(client.check_input_list(address))
     

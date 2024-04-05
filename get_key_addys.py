@@ -13,6 +13,7 @@ for file in files:
     try:
         data = json.loads(file.read_text())["data"]
         adresses.append(f"{json.loads(data)['ss58_address']}")
+        adresses.append(f"{json.loads(data)['path']}")
     except:
         logger.warning(f"Failed to load file: {file}")
 

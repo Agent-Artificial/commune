@@ -5480,6 +5480,8 @@ class Subspace(c.Module):
         mystaketo = self.my_stake_to(netuid=netuid, network=network, fmt=fmt,block=block, update=update)
         key2stake = {}
         for key, staketo_tuples in mystaketo.items():
+            if isinstance(staketo_tuples, float):
+                stake = staketo_tuples
             stake = sum([s for a, s in staketo_tuples])
         if search != None:
             key2stake = {k:v for k,v in key2stake.items() if search in k}
