@@ -207,3 +207,33 @@ wait_for_finalization: {wait_for_finalization}
 
 if __name__ == "__main__":
     client = CommuneClient()
+    client.subspace.cachefn("clear")
+    # addresses = client.km.key2ss58addresses
+    # for name, address in addresses.items():
+        # print(name)
+        # print(client.check_input_list([address]))
+    # 
+    #client.subspace.create_key(
+    #    key="agentartificial::speech2text"
+    #)
+
+#    keys = client.km.keynames
+#    print(keys)
+#    addresses = client.km.key2ss58addresses 
+
+
+#    print(addresses)
+    
+    #print(client.register_module(
+    #   keyname = 'agentartificial::vali_speech2text',
+    #   stake=300,
+    #   subnet="agentartificial",
+    #   key="module",
+    #   address=client.km.key2ss58addresses['agentartificial::vali_speech2text'],
+    #   module_key="5F4c6WjExFshz3QQ4U6xtEXqUyPFV2P66Z5ZBQpvSyCFnuHE",
+    #   wait_for_finalization=True,
+    #   wait_for_inclusion=True,
+    #   network="main"
+    #))
+#
+#    print(client.subspace.serve(module="agentartificial.speech2text.Speech2Text", port=4197, host= "199.126.197.240", max_workers=2))
