@@ -1,22 +1,46 @@
 from commune.module import Module
+from commune.subspace.subspace import Subspace
+from agentartificial.subnet import Subnet
+import requests
+import json
 
-class AgentArtificial(Module):
+class AgentArtificial(Subnet):
     def __init__(self):
         super().__init__()
+        self.registry = {}
+        self.subspace = Subspace()
 
-    def register(self):
-        pass
+    def get_registry_entry(self, name):
+        if name not in self.registry:
+            with open("registry.json", "r", encoding="utf-8") as f:
+                self.registry = json.loads(f.read())
+        return self.registry[name]
 
-    def execute(self):
-        pass
+    def register(self, module, url, body, headers):
+        if entry := self.get_registry_entry(module["name"]):
+            return self.registry[entry["name"]]
+        result = requests.post(url, json=body, headers=headers)
+        self.registry[module["name"]] = module
+        self.registry[module["name"]]["sample_result"] = result.json()
 
-    def forward(self):
-        pass
+        with open("registry.json", "a", encoding="utf-8") as f:
+            f.write(json.dumps(module) + "\n")
 
-    def validate(self):
-        pass
+        return self.registry[module["name"]]
+            
+    def execute(self, name, **kwargs):
+        registry_entry = self.get_registry_entry(name)
+        return registry_entry["command"](**kwargs)
 
-
-    def test(self):
-        pass
-    
+    def vote(self, weights, netuid=52):
+        uids = []
+        for _, module in self.registry.items():
+            uids.extend(iter(module["uids"]))
+        self.subspace.vote(
+            uids=uids,
+            weights=weights,
+            netuid=netuid,
+            key="keyname",
+            network="main",
+            update=True
+        )

@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 
 
 class Endpoints(Enum):
+    AGENT_MODULE="/agent_module"
     TEXT_GENERATION="/text_generation"
     TEXT2SPEECH="/text2speech"
     TEXT2IMAGE="/text2image"

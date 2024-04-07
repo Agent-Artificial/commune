@@ -207,7 +207,8 @@ wait_for_finalization: {wait_for_finalization}
 
 if __name__ == "__main__":
     client = CommuneClient()
-    client.subspace.cachefn("clear")
+    addresses = list(client.km.key2ss58addresses.values())
+    client.check_input_list(addresses)
     # addresses = client.km.key2ss58addresses
     # for name, address in addresses.items():
         # print(name)
@@ -237,3 +238,7 @@ if __name__ == "__main__":
     #))
 #
 #    print(client.subspace.serve(module="agentartificial.speech2text.Speech2Text", port=4197, host= "199.126.197.240", max_workers=2))
+
+print(client.subspace.available_ports())
+
+#client.subspace.serve(module="agentartificial.module.agent_module", tag="agentartificial", )
