@@ -250,8 +250,13 @@ class Subspace(c.Module):
 
     
     def delegation_fee(self, netuid = 0, block=None, network=None, update=False, fmt='j'):
-        delegation_fee = self.query_map('DelegationFee', netuid=netuid, block=block ,update=update, network=network)
-        return delegation_fee
+        return self.query_map(
+            'DelegationFee',
+            netuid=netuid,
+            block=block,
+            update=update,
+            network=network,
+        )
 
     def stake_to(self, netuid = 0, network=network, block=None, update=False, fmt='nano',**kwargs):
         stake_to = self.query_map('StakeTo', netuid=netuid, block=block, update=update, network=network, **kwargs)
@@ -1660,7 +1665,7 @@ class Subspace(c.Module):
             names = list(uid2name.values())
         else:
             for netuid, uid2name in uid2name.items():
-                names[netuid] = list(netuid.values())
+                names[netuid] = list(netuid)
         return names
 
     def addresses(self, netuid: int = 0, update=False, **kwargs) -> List[str]:
@@ -3331,10 +3336,6 @@ class Subspace(c.Module):
         my_stake_to = self.my_stake_to(netuid=netuid, network=network, fmt=fmt, update=update)
         return sum([sum(list(v.values())) for k,v in my_stake_to.items()])
     
-
-
-
-
     def staker2stake(self,  update=False, network='main', fmt='j', local=False):
         staker2netuid2stake = self.staker2netuid2stake(update=update, network=network, fmt=fmt, local=local)
         staker2stake = {}
