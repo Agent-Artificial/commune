@@ -18,6 +18,7 @@ class CommuneClient:
         self, 
         key_name: Optional[str] = None,
         ss58key: Optional[str] = None,
+        netuid: Optional[int] = 0
         ):
         if not ss58key and not key_name:
             logger.warning("No key name or ss58key provided")
@@ -26,15 +27,15 @@ class CommuneClient:
             ss58key = self.km.keyring[key_name].ss58_address # type: ignore
         return self.subspace.get_balance(ss58key)
         
-    def get_all_balances(self):
+    def get_all_balances(self, netuid=0):
         balances = []
         for name in self.keynames:
             if str(name).startswith("5"):
-                balance = self.getbalance(name)
-                print(name, balance)
+                key = name
             else:
                 key = self.km.keyring[name].ss58_address
-                balances.append(self.getbalance(name, key))
+            balance = self.getbalance(name, key, netuid=netuid)
+            balances.append([name, key, balance])
         return balances
         
 
@@ -45,8 +46,7 @@ class CommuneClient:
         self.subspace.transfer(amount=amount, dest=to_key, key=from_key, network=network, nonce=nonce)
 
     def get_stake_to(self, keyname: Optional[str]="", address: str="", netuid:Optional[int]=0):
-        stake = self.subspace.get_stake_to(address, keyname, netuid or 0)
-        return stake
+        return self.subspace.get_stake_to(address, keyname, netuid=netuid)
 
     def get_all_stake_to(self, netuid=0):
         stakes = []

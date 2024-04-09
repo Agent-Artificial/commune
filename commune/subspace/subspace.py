@@ -1659,20 +1659,17 @@ class Subspace(c.Module):
     def names(self, 
               netuid: int = 0, 
               update=False,
-                **kwargs) -> List[str]:
+                **kwargs):
         uid2name = self.query_map('Name', update=update, netuid=netuid,**kwargs)
         if isinstance(netuid, int):
-            names = list(uid2name.values())
-        else:
-            for netuid, uid2name in uid2name.items():
-                names[netuid] = list(netuid)
-        return names
+            names = uid2name
+            return names
 
-    def addresses(self, netuid: int = 0, update=False, **kwargs) -> List[str]:
+    def addresses(self, netuid: int = 0, update=False, **kwargs):
         addresses = self.query_map('Address',netuid=netuid, update=update, **kwargs)
         
         if isinstance(netuid, int):
-            addresses = list(addresses.values())
+            addresses = addresses
         else:
             for k,v in addresses.items():
                 addresses[k] = list(v.values())
@@ -2752,7 +2749,7 @@ class Subspace(c.Module):
                     break
         elif module != None and amount == None:
             module_key = self.name2key(netuid=netuid).get(module)
-            amount = int(self.to_nanos(amount)) if amount else stake_to[module_key]
+            amount = int(self.to_nanos(amount)) if amount else stake_to[key]
         else: 
             raise Exception('Invalid input')
 
@@ -2760,7 +2757,7 @@ class Subspace(c.Module):
         params={
             'amount': amount ,
             'netuid': netuid,
-            'module_key': module_key
+            'module_key': key
             }
         response = self.compose_call(fn='remove_stake',params=params, key=key, **kwargs)
 

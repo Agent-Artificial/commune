@@ -164,17 +164,17 @@ def register(
 
 
 def regfleet(
-    tagname="agentartificial", 
+    tagname="agentartificial::fitzgerald", 
     stake=300,
     subnet='agentartificial',
-    address="5FA4p3ADFYhmvxYhVmUnnEoTak7UJcmRHbe6KPvsoUSe2H91",
-    module_key="brig",
+    address="5HVoPviTiQ8haEL6XCyCzM5vANHT361EWU6wgCfnqYdSSAMT",
+    module_key="module",
     network='main',
     wait_for_inclusion=True,
     wait_for_finalization=True
     ):
 
-    for i in range(10):
+    for i in range(1):
         output = client.subspace.serve(
             module=module_key,
             tag=tagname,
@@ -203,4 +203,56 @@ def regfleet(
         )
 
 
-regfleet()
+def serve(
+    modulekey="eden", 
+    tagname="agentartificial.eden", 
+    network="main"
+    ):
+    for _ in range(10):
+        output = client.subspace.serve(
+            module=modulekey,
+            tag=tagname,
+            network=network,
+            )
+
+
+def launch(
+    tagname="agentartificial::fitzgerald", 
+    stake=300,
+    subnet='agentartificial',
+    address="",
+    module_key="module",
+    network='main',
+    wait_for_inclusion=True,
+    wait_for_finalization=True,
+    name="module"
+):
+    output = client.subspace.serve(
+    module=module_key,
+    tag=tagname,
+    network=network,
+    name=name
+    )
+
+    # Getting the address
+    address_full = output['address']
+    
+    # Splitting the address into IP and port
+    ip_address, port = address_full.split(':')
+    
+    # Printing the results
+    print(f"Serving on:\nIP Address: {ip_address}, Port: {port}")
+    
+    register(
+        name=f"{tagname}::{name}",
+        address=address_full,
+        stake=stake,
+        subnet=subnet,
+        key=module_key,
+        module_key=address,
+        network=network,
+        wait_for_inclusion=wait_for_inclusion,
+        wait_for_finalization=wait_for_finalization
+    )
+
+launch()
