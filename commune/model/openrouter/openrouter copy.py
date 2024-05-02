@@ -3,12 +3,6 @@ import requests
 import json
 import os
 from typing import List
-from dotenv import load_dotenv
-
-load_dotenv()
-
-OPEN_ROUTER_API_KEY = os.getenv('OPEN_ROUTER_API_KEY')
-
 
 class OpenRouterModule(c.Module):
     whitelist = ['generate', 'models']
@@ -23,7 +17,7 @@ class OpenRouterModule(c.Module):
         x_title: str = "Communne",
         max_history: int = 100,
         **kwargs
-                ):
+    ):
         self.url = url
         self.set_api_key(api_key)
         self.set_model(model)
@@ -34,49 +28,41 @@ class OpenRouterModule(c.Module):
         self.x_title = x_title
         self.max_history = max_history
 
-    def set_model(self, model: str):
+    def set_model(self, model:str):
         self.model_pool = self.models()
 
-        if isinstance(
-            model,
-            str
-        ) and model not in self.model_pool:
-            self.model_pool = [m for m in self.model_pool if model in m['id']]
-
+        if isinstance(model, str) and \
+                        model not in self.model_pool:
+            self.model_pool = [ m for m in self.model_pool if model in m['id']]
+            
         assert len(self.model_pool) > 0, f'No models found with {model}'
-        if model is None:
+        if model == None:
             model = c.choice(self.model_pool)
 
         return {"status": "success", "model": model, "models": self.models}
+        
 
-    def generate(
-        self,
-        content: str,
-        text_only:bool = True,
-        model=None,
-        history=None,
-        trials=1,
-        api_key=None
-    ):
+
+    def generate(self, content: str, text_only:bool = True, model=None, history=None, trials=1, api_key=None ):
+
 
         # trials 
         while trials > 1:
             try:
-                response = self.generate(
-                    content=content, 
-                    text_only=text_only, 
-                    history=history, trials=1
-                    )
+                response = self.generate(content=content, text_only=text_only, history=history, trials=1)
             except Exception as e:
                 e = c.detailed_error(e)
                 trials -= 1
                 c.print('{t} trials Left')
                 c.print(e)
                 continue
-
+            
             return response
 
         assert trials > 0
+
+            
+                
 
         model = model or c.choice(self.model_pool)['id']
         history = history or []
@@ -87,6 +73,7 @@ class OpenRouterModule(c.Module):
                 "model": model, 
                 "messages": history + [{"role": self.role, "content": content} ]
             }
+        
 
         t1 = c.time()
         response = requests.post(
@@ -96,7 +83,7 @@ class OpenRouterModule(c.Module):
                 "HTTP-Referer": self.http_referer, 
                 "X-Title": self.x_title, 
             },
-            timeout=10,
+
             data=json.dumps(data)
             )
         t2 = c.time()
@@ -111,6 +98,7 @@ class OpenRouterModule(c.Module):
         output_text = response["choices"][0]["message"]["content"]
         output_tokens = output_text * tokens_per_word
 
+    
         path = f'state/{model}'
         state = self.get(path, {})
 
@@ -124,13 +112,17 @@ class OpenRouterModule(c.Module):
 
         self.put(path, state)
 
-        return output_text if text_only else response
+        if text_only:
+            return output_text
+            
 
+        return response
+    
     prompt = generate
 
     def set_api_key(self, api_key:str):
-        api_key = str(os.getenv('OPEN_ROUTER_API_KEY'))
-        if api_key is None:
+        api_key = os.getenv(api_key, None)
+        if api_key == None:
             api_keys = self.api_keys()
             assert len(api_keys) > 0, "No API keys found. Please set an API key with OpenRouterModule.set_api_key()"
             api_key = c.choice(api_keys)
@@ -139,7 +131,7 @@ class OpenRouterModule(c.Module):
 
     def test(self, text = 'Hello', model=None):
         t1 = c.time()
-        if model is None:
+        if model == None:
             model = c.choice(self.model_pool)['id']
         response = self.prompt(text, model=model, text_only=True)
         if isinstance(response, dict) and 'error' in response:
@@ -148,19 +140,22 @@ class OpenRouterModule(c.Module):
         latency = c.time() - t1
         assert isinstance(response, str)
         return {"status": "success", "response": response, 'latency': latency, 'model': model , 'tokens_per_second': tokens_per_second}
+    
 
     def test_models(self, search=None, timeout=10, models=None):
         models = models or self.models(search=search)
         futures = [c.submit(self.test, kwargs=dict(model=m['id']), timeout=timeout) for m in models]
-        return c.wait(self.test)
-
+        results = c.wait(self.test)
+        return results
+    
     @classmethod
     def model2info(cls, search:str = None):
         models = cls.models(search=search)
         if search != None:
             models =  [m for m in models if search in m['id']]
         return {m['id']:m for m in models}
-
+    
+    
     @classmethod
     def models(cls, search:str = None, update=False, path='model'):
         if not update:
@@ -177,10 +172,12 @@ class OpenRouterModule(c.Module):
         if search != None:
             models =  [m for m in models if search in m['id']]
         return models
-
+    
     @classmethod
-    def model_names(cls, search: str | None = None, update=False):
+    def model_names(cls, search:str = None, update=False):
         return [m['id'] for m in cls.models(search=search, update=update)]
+    
 
     def num_tokens(self, text):
         return len(str(text).split(' '))
+

@@ -10,7 +10,7 @@ load_dotenv()
 OPEN_ROUTER_API_KEY = os.getenv('OPEN_ROUTER_API_KEY')
 
 
-class OpenRouterModule(c.Module):
+class Artificial(c.Module):
     whitelist = ['generate', 'models']
 
     def __init__(

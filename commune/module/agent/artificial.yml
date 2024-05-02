@@ -1,0 +1,13 @@
+agentartificial:
+  module: agent.artificial
+  tag: "{i}"
+  network: main
+  port: 3000
+  server_name: agent.artificial
+  refresh: true
+  wait_for_server: true
+  remote: true
+  tag_seperator: "::" 
+  max_workers: 2
+  public: true
+  key: agent.artificial::{i}
